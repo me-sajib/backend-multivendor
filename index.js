@@ -5,6 +5,7 @@ const app = express();
 const bodyParser = require("body-parser");
 
 const userRoute = require("./routes/users.route");
+const orderRoute = require("./routes/order.route");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use(userRoute);
+app.use(orderRoute);
 
 app.use("/", (req, res) => {
   res.send("Hello Developer");

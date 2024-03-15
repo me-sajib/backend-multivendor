@@ -1,12 +1,12 @@
 const router = require("express").Router();
 const {
-	saveUser,
-	userLogin,
-	checkUser,
+  saveUser,
+  userLogin,
+  checkUser,
 } = require("../controllers/users.controller");
 const { verifyAuth } = require("../middlewares/authMiddlewares");
 const {
-	registrationValidateMiddleware,
+  registrationValidateMiddleware,
 } = require("../middlewares/validationMiddleware");
 
 // routes
