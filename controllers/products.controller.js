@@ -11,6 +11,8 @@ exports.saveProduct = async (req, res) => {
 		brand,
 		category,
 		quantity,
+		color,
+		size,
 	} = req.body;
 
 	// validation
@@ -20,7 +22,7 @@ exports.saveProduct = async (req, res) => {
 	}
 
 	// Save image data to database
-	const insertQuery = `INSERT INTO products (name, regular_price, sale_price, description, brand, category, images, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+	const insertQuery = `INSERT INTO products (name, regular_price, sale_price, description, brand, category, images, quantity, color, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
 	connection.query(
 		insertQuery,
@@ -33,15 +35,31 @@ exports.saveProduct = async (req, res) => {
 			category,
 			images,
 			quantity,
+			color,
+			size,
 		],
 		(error, results) => {
 			if (error) {
-				res.status(200).json({ message: "Error saving image to database" });
+				res
+					.status(200)
+					.json({ status: false, message: "Something went wrong" });
 				return;
 			}
 
 			if (results) {
-				res.status(200).json({ message: "Image saved successfully" });
+				// send all products
+				connection.query("SELECT * FROM products", (error, results) => {
+					if (error) {
+						console.error(error);
+						res
+							.status(500)
+							.json({ message: "Error retrieving data from database" });
+						return;
+					}
+					if (results) {
+						res.status(200).json({ status: true, data: results });
+					}
+				});
 			}
 		}
 	);
@@ -149,35 +167,59 @@ exports.updateProduct = (req, res) => {
 			return;
 		}
 		if (results) {
-			res
-				.status(200)
-				.json({ status: true, message: "Product updated successfully" });
+			// send all updated products
+			connection.query("SELECT * FROM products", (error, results) => {
+				if (error) {
+					res.status(201).json({
+						message: "Error retrieving data from database",
+					});
+					return;
+				}
+				if (results) {
+					res.status(200).json({ status: true, data: results });
+				}
+			});
 		}
 	});
 };
 
 exports.saveSliderProduct = (req, res) => {
 	const image = req?.file?.filename;
-	const { small_title, big_title, category } = req.body;
+	const { small_title, large_title, category } = req.body;
 
-	if (!small_title || !big_title || !category) {
-		res.status(200).json({ message: "All fields are required" });
+	if (!small_title || !large_title || !category) {
+		res.status(200).json({ status: false, message: "All fields are required" });
 		return;
 	}
 
-	const insertQuery = `INSERT INTO sliders (small_title, big_title, category, images) VALUES (?, ?, ?, ?)`;
-	const values = [small_title, big_title, category, image];
+	const insertQuery = `INSERT INTO sliders (small_title, large_title, category, images) VALUES (?, ?, ?, ?)`;
+	const values = [small_title, large_title, category, image];
 
 	connection.query(insertQuery, values, (error, results) => {
 		if (error) {
 			console.error(error);
-			res.status(500).json({ message: "Error retrieving data from database" });
+			res.status(500).json({
+				status: false,
+				message: "Error retrieving data from database",
+			});
 			return;
 		}
 		if (results) {
-			res
-				.status(200)
-				.json({ status: true, message: "Slider image saved successfully" });
+			// send all updated products
+			connection.query(
+				"SELECT * FROM sliders ORDER BY id DESC",
+				(error, results) => {
+					if (error) {
+						res.status(201).json({
+							message: "Error retrieving data from database",
+						});
+						return;
+					}
+					if (results) {
+						res.status(200).json({ status: true, data: results });
+					}
+				}
+			);
 		}
 	});
 };
@@ -190,7 +232,7 @@ exports.getAllSliders = (req, res) => {
 			return;
 		}
 		if (results) {
-			res.status(200).json(results);
+			res.status(200).json({ status: true, data: results });
 		}
 	});
 };
@@ -204,6 +246,103 @@ exports.deleteSlider = (req, res) => {
 			if (error) {
 				console.error(error);
 				res.status(500).json({
+					status: false,
+					message: "Error retrieving data from database",
+				});
+				return;
+			}
+			if (results) {
+				res
+					.status(200)
+					.json({ status: true, message: "Slider deleted successfully" });
+			}
+		}
+	);
+};
+
+exports.saveBannerProduct = async (req, res) => {
+	const images = req?.file?.filename; // Binary image data from multer
+
+	const { name, regular_price, sale_price, description, brand, quantity } =
+		req.body;
+	const category = "banner";
+
+	// validation
+	if ((!name, !regular_price, !sale_price, !description, !quantity)) {
+		res.status(200).json({ message: "All fields are required" });
+		return;
+	}
+
+	// Save image data to database
+	const insertQuery = `INSERT INTO products (name, regular_price, sale_price, description, brand, category, images, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+	connection.query(
+		insertQuery,
+		[
+			name,
+			regular_price,
+			sale_price,
+			description,
+			brand,
+			category,
+			images,
+			quantity,
+		],
+		(error, results) => {
+			if (error) {
+				res.status(200).json({ message: "Error saving image to database" });
+				return;
+			}
+
+			if (results) {
+				// send all updated products
+				connection.query(
+					"SELECT * FROM products WHERE category = 'banner'",
+					(error, results) => {
+						if (error) {
+							res.status(201).json({
+								message: "Error retrieving data from database",
+							});
+							return;
+						}
+						if (results) {
+							console.log(results);
+							res.status(200).json({ status: true, data: results });
+						}
+					}
+				);
+			}
+		}
+	);
+};
+
+exports.getAllBannerProduct = (req, res) => {
+	// get all banner products by products table where category = banner
+	connection.query(
+		"SELECT * FROM products WHERE category = 'banner'",
+		(error, results) => {
+			if (error) {
+				console.error(error);
+				res
+					.status(500)
+					.json({ message: "Error retrieving data from database" });
+				return;
+			}
+			if (results) {
+				res.status(200).json({ status: true, data: results });
+			}
+		}
+	);
+};
+
+exports.deleteBannerProduct = (req, res) => {
+	const { id } = req.params;
+	connection.query(
+		"DELETE FROM products WHERE id = ?",
+		[id],
+		(error, results) => {
+			if (error) {
+				res.status(202).json({
 					status: false,
 					message: "Error retrieving data from database",
 				});

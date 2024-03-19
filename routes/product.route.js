@@ -12,6 +12,9 @@ const {
 	saveSliderProduct,
 	getAllSliders,
 	deleteSlider,
+	saveBannerProduct,
+	getAllBannerProduct,
+	deleteBannerProduct,
 } = require("../controllers/products.controller");
 
 const storage = multer.diskStorage({
@@ -67,9 +70,21 @@ router.post("/api/v1/category-image", upload.single("image"), (req, res) => {
 			return;
 		}
 		if (results) {
-			res
-				.status(200)
-				.json({ status: true, message: "Category image saved successfully" });
+			// send all updated products
+			connection.query(
+				"SELECT * FROM category_images ORDER BY id DESC",
+				(error, results) => {
+					if (error) {
+						res.status(201).json({
+							message: "Error retrieving data from database",
+						});
+						return;
+					}
+					if (results) {
+						res.status(200).json({ status: true, data: results });
+					}
+				}
+			);
 		}
 	});
 });
@@ -82,7 +97,7 @@ router.get("/api/v1/category-image", (req, res) => {
 			return;
 		}
 		if (results) {
-			res.status(200).json(results);
+			res.status(200).json({ status: true, data: results });
 		}
 	});
 });
@@ -110,5 +125,12 @@ router.delete("/api/v1/category-image/:id", (req, res) => {
 		}
 	);
 });
+
+// banner product image
+router.post("/api/v1/banner", upload.single("image"), saveBannerProduct);
+
+router.get("/api/v1/banner", getAllBannerProduct);
+
+router.delete("/api/v1/banner/:id", deleteBannerProduct);
 
 module.exports = router;

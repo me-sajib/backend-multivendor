@@ -41,3 +41,15 @@ exports.getOrder = async (req, res) => {
 		}
 	});
 };
+
+exports.deleteOrder = async (req, res) => {
+	const sql = "DELETE FROM orders WHERE id=?";
+	connection.query(sql, [req.params.id], (error, results) => {
+		if (error) {
+			console.log(error);
+		}
+		if (results) {
+			res.json({ results, status: true });
+		}
+	});
+};
