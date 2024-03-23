@@ -48,16 +48,16 @@ const getUserID = async (req, res, next) => {
 };
 
 const checkIsAdmin = async (req, res, next) => {
-  const authMobile = req.user.mobile;
+  const { id, mobile } = req.user;
   const sql = "SELECT * FROM users WHERE mobile=?";
-  connection.query(sql, [authMobile], async (error, results, fields) => {
+  connection.query(sql, [mobile], async (error, results, fields) => {
     if (error) res.status(202).json({ status: false, message: error });
     if (results) {
-      if (results[0].is_admin === "yes") {
-        req.user = { isAdmin: true };
+      if (results[0]?.role === "admin") {
+        req.user = { id, isAdmin: true };
         next();
       } else {
-        req.user = { isAdmin: false };
+        req.user = { id, isAdmin: false };
         next();
       }
     }
