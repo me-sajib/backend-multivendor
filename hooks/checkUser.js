@@ -24,7 +24,7 @@ const get_or_create_user = (username, mobile) => {
 				const createUserQuery = "INSERT INTO users SET ?";
 				connection.query(
 					createUserQuery,
-					{ username, mobile, password: "", token: mobile + "123456" },
+					{ username, mobile, token: mobile + "123456" },
 					(error, results) => {
 						if (results) {
 							return resolve(results.insertId);

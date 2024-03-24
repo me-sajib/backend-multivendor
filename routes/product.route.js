@@ -15,6 +15,9 @@ const {
 	saveBannerProduct,
 	getAllBannerProduct,
 	deleteBannerProduct,
+	saveCategoryImage,
+	getAllCategoryImages,
+	deleteCategoryImage,
 } = require("../controllers/products.controller");
 
 const storage = multer.diskStorage({
@@ -53,78 +56,15 @@ router.get("/api/v1/slider", getAllSliders);
 router.delete("/api/v1/slider/:id", deleteSlider);
 
 // save category images and title
-router.post("/api/v1/category-image", upload.single("image"), (req, res) => {
-	const image = req?.file?.filename;
-	const { title } = req.body;
-	if (!title) {
-		res.status(200).json({ message: "All fields are required" });
-		return;
-	}
+router.post(
+	"/api/v1/category-image",
+	upload.single("image"),
+	saveCategoryImage
+);
 
-	const insertQuery = `INSERT INTO category_images (title, images) VALUES (?, ?)`;
-	const values = [title, image];
-	connection.query(insertQuery, values, (error, results) => {
-		if (error) {
-			console.error(error);
-			res.status(500).json({ message: "Error retrieving data from database" });
-			return;
-		}
-		if (results) {
-			// send all updated products
-			connection.query(
-				"SELECT * FROM category_images ORDER BY id DESC",
-				(error, results) => {
-					if (error) {
-						res.status(201).json({
-							message: "Error retrieving data from database",
-						});
-						return;
-					}
-					if (results) {
-						res.status(200).json({ status: true, data: results });
-					}
-				}
-			);
-		}
-	});
-});
+router.get("/api/v1/category-image", getAllCategoryImages);
 
-router.get("/api/v1/category-image", (req, res) => {
-	connection.query("SELECT * FROM category_images", (error, results) => {
-		if (error) {
-			console.error(error);
-			res.status(500).json({ message: "Error retrieving data from database" });
-			return;
-		}
-		if (results) {
-			res.status(200).json({ status: true, data: results });
-		}
-	});
-});
-
-router.delete("/api/v1/category-image/:id", (req, res) => {
-	const { id } = req.params;
-	connection.query(
-		"DELETE FROM category_images WHERE id = ?",
-		[id],
-		(error, results) => {
-			if (error) {
-				console.error(error);
-				res.status(500).json({
-					status: false,
-					message: "Error retrieving data from database",
-				});
-				return;
-			}
-			if (results) {
-				res.status(200).json({
-					status: true,
-					message: "Category image deleted successfully",
-				});
-			}
-		}
-	);
-});
+router.delete("/api/v1/category-image/:id", deleteCategoryImage);
 
 // banner product image
 router.post("/api/v1/banner", upload.single("image"), saveBannerProduct);
