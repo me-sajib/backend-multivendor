@@ -47,34 +47,42 @@ exports.saveProduct = async (req, res) => {
 
 			if (results) {
 				// send all products
-				connection.query("SELECT * FROM products", (error, results) => {
-					if (error) {
-						console.error(error);
-						res
-							.status(500)
-							.json({ message: "Error retrieving data from database" });
-						return;
+				connection.query(
+					"SELECT * FROM products ORDER BY id DESC",
+					(error, results) => {
+						if (error) {
+							console.error(error);
+							res
+								.status(500)
+								.json({ message: "Error retrieving data from database" });
+							return;
+						}
+						if (results) {
+							res.status(200).json({ status: true, data: results });
+						}
 					}
-					if (results) {
-						res.status(200).json({ status: true, data: results });
-					}
-				});
+				);
 			}
 		}
 	);
 };
 
 exports.getAllProducts = (req, res) => {
-	connection.query("SELECT * FROM products", (error, results) => {
-		if (error) {
-			console.error(error);
-			res.status(500).json({ message: "Error retrieving data from database" });
-			return;
+	connection.query(
+		"SELECT * FROM products ORDER BY id DESC",
+		(error, results) => {
+			if (error) {
+				console.error(error);
+				res
+					.status(500)
+					.json({ message: "Error retrieving data from database" });
+				return;
+			}
+			if (results) {
+				res.status(200).json(results);
+			}
 		}
-		if (results) {
-			res.status(200).json(results);
-		}
-	});
+	);
 };
 
 exports.getSingleProduct = (req, res) => {
@@ -182,6 +190,132 @@ exports.updateProduct = (req, res) => {
 			});
 		}
 	});
+};
+
+exports.saveNavbar = (req, res) => {
+	const { title, category } = req.body;
+	console.log(req.body);
+	if (!title || !category) {
+		res.status(200).json({ status: false, message: "All fields are required" });
+		return;
+	}
+
+	const insertQuery = `INSERT INTO navbar (title, category) VALUES (?, ?)`;
+	const values = [title, category];
+	connection.query(insertQuery, values, (error, results) => {
+		if (error) {
+			console.error(error);
+			res.status(500).json({
+				status: false,
+				message: "Error retrieving data from database",
+			});
+			return;
+		}
+		if (results) {
+			// send all updated products
+			connection.query(
+				"SELECT * FROM navbar ORDER BY id DESC",
+				(error, results) => {
+					if (error) {
+						res.status(201).json({
+							message: "Error retrieving data from database",
+						});
+						return;
+					}
+					if (results) {
+						res.status(200).json({ status: true, data: results });
+					}
+				}
+			);
+		}
+	});
+};
+
+exports.getAllNavBar = (req, res) => {
+	connection.query(
+		"SELECT * FROM navbar ORDER BY id DESC",
+		(error, results) => {
+			if (error) {
+				console.error(error);
+				res
+					.status(500)
+					.json({ message: "Error retrieving data from database" });
+				return;
+			}
+			if (results) {
+				res.status(200).json({ status: true, results });
+			}
+		}
+	);
+};
+
+exports.getNavBar = (req, res) => {
+	connection.query(
+		"SELECT * FROM navbar ORDER BY id DESC",
+		(error, results) => {
+			if (error) {
+				console.error(error);
+				res
+					.status(500)
+					.json({ message: "Error retrieving data from database" });
+				return;
+			}
+			if (results) {
+				res.status(200).json(results);
+			}
+		}
+	);
+};
+
+exports.updateNavBar = (req, res) => {
+	const { id } = req.params;
+	const { title, category } = req.body;
+	const updateQuery = `UPDATE navbar SET title = ?, category = ? WHERE id = ?`;
+	const values = [title, category, id];
+	connection.query(updateQuery, values, (error, results) => {
+		if (error) {
+			console.error(error);
+			res.status(500).json({
+				status: false,
+				message: "Error retrieving data from database",
+			});
+			return;
+		}
+		if (results) {
+			// send all updated products
+			connection.query(
+				"SELECT * FROM navbar ORDER BY id DESC",
+				(error, results) => {
+					if (results) {
+						res.status(200).json({ status: true, data: results });
+					}
+				}
+			);
+		}
+	});
+};
+
+exports.deleteNavBar = (req, res) => {
+	const { id } = req.params;
+	connection.query(
+		"DELETE FROM navbar WHERE id = ?",
+		[id],
+		(error, results) => {
+			if (error) {
+				console.error(error);
+				res.status(500).json({
+					status: false,
+					message: "Error retrieving data from database",
+				});
+				return;
+			}
+			if (results) {
+				res
+					.status(200)
+					.json({ status: true, message: "Navbar deleted successfully" });
+			}
+		}
+	);
 };
 
 exports.saveSliderProduct = (req, res) => {

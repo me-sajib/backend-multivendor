@@ -18,7 +18,13 @@ const {
 	saveCategoryImage,
 	getAllCategoryImages,
 	deleteCategoryImage,
+	getAllNavBar,
+	getNavBar,
+	saveNavbar,
+	updateNavBar,
+	deleteNavBar,
 } = require("../controllers/products.controller");
+const { verifyAuth, checkIsAdmin } = require("../middlewares/authMiddlewares");
 
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
@@ -47,6 +53,13 @@ router.get("/api/v1/product/:id", getSingleProduct);
 router.delete("/api/v1/product/:id", deleteProduct);
 
 router.put("/api/v1/product/:id", upload.single("image"), updateProduct);
+
+// navbar items
+router.get("/api/v1/navbar", verifyAuth, getAllNavBar);
+router.get("/api/v1/navbar/:id", verifyAuth, getNavBar);
+router.post("/api/v1/navbar", saveNavbar);
+router.put("/api/v1/navbar/:id", verifyAuth, updateNavBar);
+router.delete("/api/v1/navbar/:id", verifyAuth, deleteNavBar);
 
 // save sliders images and title
 router.post("/api/v1/slider", upload.single("image"), saveSliderProduct);
