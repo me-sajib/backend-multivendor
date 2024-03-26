@@ -4,41 +4,42 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const {
-	saveProduct,
-	getAllProducts,
-	getSingleProduct,
-	deleteProduct,
-	updateProduct,
-	saveSliderProduct,
-	getAllSliders,
-	deleteSlider,
-	saveBannerProduct,
-	getAllBannerProduct,
-	deleteBannerProduct,
-	saveCategoryImage,
-	getAllCategoryImages,
-	deleteCategoryImage,
-	getAllNavBar,
-	getNavBar,
-	saveNavbar,
-	updateNavBar,
-	deleteNavBar,
+  saveProduct,
+  getAllProducts,
+  getSingleProduct,
+  deleteProduct,
+  updateProduct,
+  saveSliderProduct,
+  getAllSliders,
+  deleteSlider,
+  saveBannerProduct,
+  getAllBannerProduct,
+  deleteBannerProduct,
+  saveCategoryImage,
+  getAllCategoryImages,
+  deleteCategoryImage,
+  getAllNavBar,
+  getNavBar,
+  saveNavbar,
+  updateNavBar,
+  deleteNavBar,
+  getProductCategoryItems,
 } = require("../controllers/products.controller");
 const { verifyAuth, checkIsAdmin } = require("../middlewares/authMiddlewares");
 
 const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, "public/images"); // Define the destination folder where uploaded files will be stored
-	},
-	filename: function (req, file, cb) {
-		cb(
-			null,
-			Date.now() +
-				"-" +
-				file.originalname.slice(0, 4) +
-				path.extname(file.originalname)
-		); // Define the file name for the uploaded file
-	},
+  destination: function (req, file, cb) {
+    cb(null, "public/images"); // Define the destination folder where uploaded files will be stored
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      Date.now() +
+        "-" +
+        file.originalname.slice(0, 4) +
+        path.extname(file.originalname)
+    ); // Define the file name for the uploaded file
+  },
 });
 
 const upload = multer({ storage: storage });
@@ -55,7 +56,7 @@ router.delete("/api/v1/product/:id", deleteProduct);
 router.put("/api/v1/product/:id", upload.single("image"), updateProduct);
 
 // navbar items
-router.get("/api/v1/navbar", verifyAuth, getAllNavBar);
+router.get("/api/v1/navbar", getAllNavBar);
 router.get("/api/v1/navbar/:id", verifyAuth, getNavBar);
 router.post("/api/v1/navbar", saveNavbar);
 router.put("/api/v1/navbar/:id", verifyAuth, updateNavBar);
@@ -68,11 +69,14 @@ router.get("/api/v1/slider", getAllSliders);
 
 router.delete("/api/v1/slider/:id", deleteSlider);
 
+// get category wise products
+router.get("/api/v1/category/:category", getProductCategoryItems);
+
 // save category images and title
 router.post(
-	"/api/v1/category-image",
-	upload.single("image"),
-	saveCategoryImage
+  "/api/v1/category-image",
+  upload.single("image"),
+  saveCategoryImage
 );
 
 router.get("/api/v1/category-image", getAllCategoryImages);
