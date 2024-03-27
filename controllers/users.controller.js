@@ -254,6 +254,3 @@ exports.setPassword = async (req, res) => {
 		res.send({ status: true, message: "Password updated successfully" });
 	});
 };
-
-
-

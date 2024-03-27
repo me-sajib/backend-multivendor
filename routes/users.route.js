@@ -10,12 +10,16 @@ const {
 	verifyOtp,
 	setPassword,
 } = require("../controllers/users.controller");
-const { verifyAuth } = require("../middlewares/authMiddlewares");
+const { verifyAuth, checkIsAdmin } = require("../middlewares/authMiddlewares");
 const {
 	registrationValidateMiddleware,
 } = require("../middlewares/validationMiddleware");
 
 // routes
+router.get("/api/v1/user_roles", verifyAuth, checkIsAdmin, (req, res) => {
+	const { isAdmin } = req.user;
+	res.status(202).send({ isAdmin });
+});
 router.get("/api/v1/check_user", verifyAuth, checkUser);
 router.post("/api/v1/login", userLogin);
 router.post("/api/v1/register", registrationValidateMiddleware, saveUser);

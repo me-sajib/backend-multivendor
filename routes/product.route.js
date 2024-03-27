@@ -4,42 +4,46 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const {
-  saveProduct,
-  getAllProducts,
-  getSingleProduct,
-  deleteProduct,
-  updateProduct,
-  saveSliderProduct,
-  getAllSliders,
-  deleteSlider,
-  saveBannerProduct,
-  getAllBannerProduct,
-  deleteBannerProduct,
-  saveCategoryImage,
-  getAllCategoryImages,
-  deleteCategoryImage,
-  getAllNavBar,
-  getNavBar,
-  saveNavbar,
-  updateNavBar,
-  deleteNavBar,
-  getProductCategoryItems,
+	saveProduct,
+	getAllProducts,
+	getSingleProduct,
+	deleteProduct,
+	updateProduct,
+	saveSliderProduct,
+	getAllSliders,
+	deleteSlider,
+	saveBannerProduct,
+	getAllBannerProduct,
+	deleteBannerProduct,
+	saveCategoryImage,
+	getAllCategoryImages,
+	deleteCategoryImage,
+	getAllNavBar,
+	getNavBar,
+	saveNavbar,
+	updateNavBar,
+	deleteNavBar,
+	getProductCategoryItems,
+	saveSocialLink,
+	deleteSocialLink,
+	getAllSocialLink,
+	updateSocialLink,
 } = require("../controllers/products.controller");
 const { verifyAuth, checkIsAdmin } = require("../middlewares/authMiddlewares");
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/images"); // Define the destination folder where uploaded files will be stored
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      Date.now() +
-        "-" +
-        file.originalname.slice(0, 4) +
-        path.extname(file.originalname)
-    ); // Define the file name for the uploaded file
-  },
+	destination: function (req, file, cb) {
+		cb(null, "public/images"); // Define the destination folder where uploaded files will be stored
+	},
+	filename: function (req, file, cb) {
+		cb(
+			null,
+			Date.now() +
+				"-" +
+				file.originalname.slice(0, 4) +
+				path.extname(file.originalname)
+		); // Define the file name for the uploaded file
+	},
 });
 
 const upload = multer({ storage: storage });
@@ -74,9 +78,9 @@ router.get("/api/v1/category/:category", getProductCategoryItems);
 
 // save category images and title
 router.post(
-  "/api/v1/category-image",
-  upload.single("image"),
-  saveCategoryImage
+	"/api/v1/category-image",
+	upload.single("image"),
+	saveCategoryImage
 );
 
 router.get("/api/v1/category-image", getAllCategoryImages);
@@ -86,8 +90,15 @@ router.delete("/api/v1/category-image/:id", deleteCategoryImage);
 // banner product image
 router.post("/api/v1/banner", upload.single("image"), saveBannerProduct);
 
-router.get("/api/v1/banner", getAllBannerProduct);
+router.get("/api/v1/banner", verifyAuth, getAllBannerProduct);
 
-router.delete("/api/v1/banner/:id", deleteBannerProduct);
+router.delete("/api/v1/banner/:id", verifyAuth, deleteBannerProduct);
+
+// social link
+
+router.get("/api/v1/social", getAllSocialLink);
+router.post("/api/v1/social", verifyAuth, saveSocialLink);
+router.put("/api/v1/social/:id", verifyAuth, updateSocialLink);
+router.delete("/api/v1/social/:id", verifyAuth, deleteSocialLink);
 
 module.exports = router;
