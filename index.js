@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const userRoute = require("./routes/users.route");
 const orderRoute = require("./routes/order.route");
 const productRoute = require("./routes/product.route");
+const logger = require("./utils/logger");
 
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
@@ -18,14 +19,23 @@ app.use(userRoute);
 app.use(orderRoute);
 app.use(productRoute);
 
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Hello Developer");
 });
 
-app.use((req, res) => {
-  res.send({
-    success: "Fail",
-    error: "No route match",
+app.use((req, res, next) => {
+  logger.log({
+    level: "info",
+    message: `Request: ${req.method} ${req.url}`,
+  });
+  next();
+});
+
+// not route match
+app.use("*", (req, res) => {
+  res.status(404).json({
+    status: false,
+    message: "Route not found",
   });
 });
 
