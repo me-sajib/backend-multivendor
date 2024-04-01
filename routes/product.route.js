@@ -44,12 +44,16 @@ const storage = multer.diskStorage({
 				path.extname(file.originalname)
 		); // Define the file name for the uploaded file
 	},
+	limits: {
+		files: 10,
+		fileSize: 1024 * 1024 * 5,
+	},
 });
 
 const upload = multer({ storage: storage });
 
 // save product
-router.post("/api/v1/product", upload.single("image"), saveProduct);
+router.post("/api/v1/product", upload.array("photos", 10), saveProduct);
 
 router.get("/api/v1/products", getAllProducts);
 
