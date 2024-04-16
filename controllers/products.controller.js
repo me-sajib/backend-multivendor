@@ -3,7 +3,7 @@ const connection = require("../config/db");
 exports.saveProduct = async (req, res) => {
   const colors = req.body.colors; // Array of color names
   const files = req.files; // Array of uploaded files
-  const images = files[0].path.slice(7);
+  const images = files && files[0]?.path?.slice(7);
 
   const {
     name,
@@ -53,7 +53,7 @@ exports.saveProduct = async (req, res) => {
         const insertedId = results.insertId;
         files.forEach((file, index) => {
           const colorName = colors[index];
-          const imagePath = file.path.slice(7);
+          const imagePath = file?.path?.slice(7);
 
           // Insert color and image data into the database
           const sql =
